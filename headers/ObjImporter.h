@@ -3,6 +3,8 @@
 #include "pch.h"
 #include "Triangle.h"
 
+#include <stdexcept>
+
 #include <assimp/Importer.hpp>      // C++ importer interface
 #include <assimp/scene.h>           // Output data structure
 #include <assimp/postprocess.h>     // Post processing flags
@@ -34,8 +36,7 @@ namespace ObjImporter {
             aiProcess_SortByPType);
 
         if (nullptr == scene) {
-            cout << "failed loading scene" << endl;
-            exit;
+            throw std::runtime_error("scene file not found");
         }
 
         for (int j = 0; j < scene->mNumMeshes; j++)

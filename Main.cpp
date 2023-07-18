@@ -15,7 +15,13 @@ int main()
 {
     std::vector<std::shared_ptr<Triangle>> world;
 
-    world = ObjImporter::ImportMesh("../obj/scene.obj");
+    try {
+        world = ObjImporter::ImportMesh("../obj/scene.obj");
+    }
+    catch (std::runtime_error e) {
+        std::cout << e.what();
+        return -1;
+    }
 
     // Image
     const auto aspect_ratio = 16.0 / 9.0;
