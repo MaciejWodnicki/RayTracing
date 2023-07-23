@@ -39,32 +39,18 @@ namespace ObjImporter {
             throw std::runtime_error("scene file not found");
         }
 
-        std::vector<glm::vec4> colors = std::vector<glm::vec4>();
-
-            for (unsigned int i = 0; i < scene->mNumMeshes; i++)
-            {
-                const aiMesh* model = scene->mMeshes[i];
-                const aiMaterial* mtl = scene->mMaterials[model->mMaterialIndex];
-
-                glm::vec4 color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-                aiColor4D diffuse;
-                if (AI_SUCCESS == aiGetMaterialColor(mtl, AI_MATKEY_COLOR_DIFFUSE, &diffuse))
-                    color = glm::vec4(diffuse.r, diffuse.g, diffuse.b, diffuse.a);
-                colors.push_back(color);
-
-            }
-
+        //grab triangles and materials
         for (int j = 0; j < scene->mNumMeshes; j++)
         {
             std::shared_ptr<Mesh> resultMesh = std::make_shared<Mesh>();
             auto& mesh = scene->mMeshes[j];
+
             //material
             auto& material = scene->mMaterials[mesh->mMaterialIndex];
 
             aiColor4D diffuse;
-            if (!aiGetMaterialColor(material, AI_MATKEY_COLOR_DIFFUSE, &diffuse))
+            if (aiReturn_SUCCESS == aiGetMaterialColor(material, AI_MATKEY_COLOR_DIFFUSE, &diffuse))
                 resultMesh->_material._surfaceColor = glm::vec4(diffuse.r, diffuse.g, diffuse.b, diffuse.a);
-
 
             //vertices
             auto& vertices = mesh->mVertices;
