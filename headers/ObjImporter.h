@@ -57,8 +57,17 @@ namespace ObjImporter {
         for (int j = 0; j < scene->mNumMeshes; j++)
         {
             std::shared_ptr<Mesh> resultMesh = std::make_shared<Mesh>();
-            auto mesh = scene->mMeshes[j];
-            auto vertices = mesh->mVertices;
+            auto& mesh = scene->mMeshes[j];
+            //material
+            auto& material = scene->mMaterials[mesh->mMaterialIndex];
+
+            aiColor4D diffuse;
+            if (!aiGetMaterialColor(material, AI_MATKEY_COLOR_DIFFUSE, &diffuse))
+                resultMesh->_material._surfaceColor = glm::vec4(diffuse.r, diffuse.g, diffuse.b, diffuse.a);
+
+
+            //vertices
+            auto& vertices = mesh->mVertices;
             Vertex v1, v2, v3;
             for (int i = 0; i < mesh->mNumFaces; i++)
             {

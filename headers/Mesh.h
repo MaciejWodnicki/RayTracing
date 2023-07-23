@@ -4,7 +4,10 @@
 
 class Material
 {
-    glm::vec4 color;
+public:
+    glm::vec4 _surfaceColor;
+    float _roughness = 1.0f;
+    float _metalic = 0.0f;
 };
 
 class Mesh {

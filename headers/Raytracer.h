@@ -18,7 +18,10 @@ namespace Raytracer {
             for (auto& t: m->_triangles)
             {
                 if (t->Hit(r, payload) && payload.depth < closestPayload.depth)
+                {
+                    payload.color = m->_material._surfaceColor;
                     closestPayload = payload;
+                }
             }
         }
         if (closestPayload.depth > 0 && closestPayload.depth < FLT_MAX)

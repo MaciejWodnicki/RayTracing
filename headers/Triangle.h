@@ -15,16 +15,14 @@ class Triangle: public SceneObject {
 	Vertex _v2;
 	Vertex _v3;
 	glm::vec3 _faceNormal;
-	glm::vec3 _color;
 
 public:
 	Triangle(Vertex v1, Vertex v2, Vertex v3, glm::vec3 color = glm::vec3(1.0f,0.0f,0.0f))
-		:_v1(v1), _v2(v2), _v3(v3), _color(color) 
+		:_v1(v1), _v2(v2), _v3(v3)
 	{
 		_faceNormal = glm::normalize(glm::cross(_v1.position - _v2.position, _v2.position - _v3.position));
 	}
 
-	glm::vec3 getColor() const { return _color; }
 	std::string getCoordString() const {
 		return "v1: " + std::to_string(_v1.position.x) + ", " + std::to_string(_v1.position.y) + ", " + std::to_string(_v1.position.z) +
 			"\nv2: " + std::to_string(_v2.position.x) + ", " + std::to_string(_v2.position.y) + ", " + std::to_string(_v2.position.z) +
@@ -52,7 +50,6 @@ public:
 		vec3 hitPoint = ray.getOrigin() + t * ray.getDirection();
 
 		payload.depth = t;
-		payload.color = _color;
 		payload.hitAngle = rayNormalDot;
 
 		vec3 edge0 = _v2.position - _v1.position;
