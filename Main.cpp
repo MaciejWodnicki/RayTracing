@@ -4,19 +4,20 @@
 #include <atomic>
 
 #include "OutputFile.h"
-#include "Triangle.h"
+#include "headers/Mesh.h"
 #include "ObjImporter.h"
 #include "Raytracer.h"
+
 
 
 using glm::vec3;
 
 int main()
 {
-    std::vector<std::shared_ptr<Triangle>> world;
+    std::vector<std::shared_ptr<Mesh>> world;
 
     try {
-        world = ObjImporter::ImportMesh("../obj/scene.obj");
+        world = ObjImporter::ImportMeshes("../obj/scene.obj");
     }
     catch (std::runtime_error e) {
         std::cout << e.what();
@@ -25,7 +26,7 @@ int main()
 
     // Image
     const auto aspect_ratio = 16.0 / 9.0;
-    const int image_width = 1600;
+    const int image_width = 600;
     const int image_height = static_cast<int>(image_width / aspect_ratio);
 
     // Camera 

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "pch.h"
-#include "Triangle.h"
+#include "Mesh.h"
 
 #include <stdexcept>
 
@@ -21,11 +21,11 @@ namespace ObjImporter {
         return out;
     }
 
-    std::vector<std::shared_ptr<Triangle>> ImportMesh(std::string path)
+    std::vector<std::shared_ptr<Mesh>> ImportMeshes(std::string path)
     {
         using namespace std;
 
-        vector<shared_ptr<Triangle>> world;
+        vector<shared_ptr<Mesh>> world;
 
         Assimp::Importer importer;
 
@@ -39,8 +39,24 @@ namespace ObjImporter {
             throw std::runtime_error("scene file not found");
         }
 
+        std::vector<glm::vec4> colors = std::vector<glm::vec4>();
+
+            for (unsigned int i = 0; i < scene->mNumMeshes; i++)
+            {
+                const aiMesh* model = scene->mMeshes[i];
+                const aiMaterial* mtl = scene->mMaterials[model->mMaterialIndex];
+
+                glm::vec4 color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+                aiColor4D diffuse;
+                if (AI_SUCCESS == aiGetMaterialColor(mtl, AI_MATKEY_COLOR_DIFFUSE, &diffuse))
+                    color = glm::vec4(diffuse.r, diffuse.g, diffuse.b, diffuse.a);
+                colors.push_back(color);
+
+            }
+
         for (int j = 0; j < scene->mNumMeshes; j++)
         {
+            std::shared_ptr<Mesh> resultMesh = std::make_shared<Mesh>();
             auto mesh = scene->mMeshes[j];
             auto vertices = mesh->mVertices;
             Vertex v1, v2, v3;
@@ -51,8 +67,9 @@ namespace ObjImporter {
                 v3.position = aiVec3ToGLM(vertices[mesh->mFaces[i].mIndices[2]]);
 
                 std::shared_ptr<Triangle> t = std::make_shared<Triangle>(v1, v2, v3);
-                world.push_back(t);
+                resultMesh->_triangles.push_back(t);
             }
+            world.push_back(resultMesh);
 
         }
         return world;

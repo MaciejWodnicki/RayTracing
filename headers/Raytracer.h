@@ -1,22 +1,25 @@
 #pragma once
 #include "pch.h"
-#include "Triangle.h"
+#include "Mesh.h"
 #include <glm/gtc/constants.hpp>
 
 namespace Raytracer {
 
 
-    inline glm::vec3 CastRay(const Ray& r, const std::vector<std::shared_ptr<Triangle>>& world) {
+    inline glm::vec3 CastRay(const Ray& r, const std::vector<std::shared_ptr<Mesh>>& world) {
         using glm::vec3;
 
         HitPayload closestPayload;
         HitPayload payload;
 
 
-        for (auto& t : world)
+        for (auto& m : world)
         {
-            if (t->Hit(r, payload) && payload.depth < closestPayload.depth)
-                closestPayload = payload;
+            for (auto& t: m->_triangles)
+            {
+                if (t->Hit(r, payload) && payload.depth < closestPayload.depth)
+                    closestPayload = payload;
+            }
         }
         if (closestPayload.depth > 0 && closestPayload.depth < FLT_MAX)
             return closestPayload.color * (closestPayload.hitAngle / glm::pi<float>());
