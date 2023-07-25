@@ -6,12 +6,11 @@
 namespace Raytracer {
 
 
-    inline glm::vec3 CastRay(const Ray& r, const std::vector<std::shared_ptr<Mesh>>& world) {
+    inline glm::vec3 CastRay(const Ray& r, const std::vector<std::shared_ptr<Mesh>>& world, glm::vec3  lightDirection) {
         using glm::vec3;
 
         HitPayload closestPayload;
         HitPayload payload;
-
 
         for (auto& m : world)
         {
@@ -25,7 +24,10 @@ namespace Raytracer {
             }
         }
         if (closestPayload.depth > 0 && closestPayload.depth < FLT_MAX)
-            return closestPayload.color * (closestPayload.hitAngle / glm::pi<float>());
+        {
+            float lightAngleFactor = glm::max<float>(glm::dot(closestPayload.normal,-lightDirection),0.0f)/glm::pi<float>();
+            return closestPayload.color * lightAngleFactor;
+        }
         vec3 unit_direction = r.getDirection() / glm::length(r.getDirection());
         float t = 0.5 * (unit_direction.y + 1.0);
         return (1.0f - t) * vec3(1.0f) + t * vec3(0.5, 0.7, 1.0);;

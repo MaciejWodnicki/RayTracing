@@ -49,8 +49,16 @@ namespace ObjImporter {
             auto& material = scene->mMaterials[mesh->mMaterialIndex];
 
             aiColor4D diffuse;
+            float roughness;
+            float metalic;
+
             if (aiReturn_SUCCESS == aiGetMaterialColor(material, AI_MATKEY_COLOR_DIFFUSE, &diffuse))
                 resultMesh->_material._surfaceColor = glm::vec4(diffuse.r, diffuse.g, diffuse.b, diffuse.a);
+            if (aiReturn_SUCCESS == aiGetMaterialFloat(material, AI_MATKEY_ROUGHNESS_FACTOR, &roughness))
+                resultMesh->_material._roughness = roughness;
+            if (aiReturn_SUCCESS == aiGetMaterialFloat(material, AI_MATKEY_METALLIC_FACTOR, &metalic))
+                resultMesh->_material._metalic = metalic;
+
 
             //vertices
             auto& vertices = mesh->mVertices;

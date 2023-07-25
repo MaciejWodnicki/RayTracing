@@ -37,7 +37,7 @@ public:
 
 		float rayNormalDot =dot(_faceNormal, -ray.getDirection());
 
-		if (glm::abs(rayNormalDot) < 0.0005f) // promieñ jest rownolegly do plaszczyzny lub trafia w tyl trojkata
+		if (rayNormalDot < 0.0005f) // promieñ jest rownolegly do plaszczyzny lub trafia w tyl trojkata
 		{
 			return false; //idk napewno nie kolor trojkata
 		}
@@ -50,7 +50,7 @@ public:
 		vec3 hitPoint = ray.getOrigin() + t * ray.getDirection();
 
 		payload.depth = t;
-		payload.hitAngle = rayNormalDot;
+		payload.normal = _faceNormal;
 
 		vec3 edge0 = _v2.position - _v1.position;
 		vec3 edge1 = _v3.position - _v2.position;

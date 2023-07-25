@@ -6,7 +6,7 @@ class HitPayload {
 public:
     glm::vec4 color;
     float depth = FLT_MAX;
-    float hitAngle = 0.0f;
+    glm::vec3 normal;
 };
 
 class SceneObject {

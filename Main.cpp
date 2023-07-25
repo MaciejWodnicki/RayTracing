@@ -39,6 +39,10 @@ int main()
     vec3 vertical = vec3(0, viewport_height, 0);
     vec3 lower_left_corner = origin - horizontal / 2.0f - vertical / 2.0f - vec3(0, 0, focal_length);
 
+    //light
+    glm::vec3 lightDirection = glm::vec3(-1, -1, -2);
+    glm::normalize(lightDirection);
+
     // Render
     OutputFile file(image_width, image_height);
 
@@ -56,7 +60,7 @@ int main()
         
             Ray r(origin, lower_left_corner + u * horizontal + v * vertical - origin);
             
-            vec3 pixel_color = Raytracer::CastRay(r, world);
+            vec3 pixel_color = Raytracer::CastRay(r, world, lightDirection);
             
             file.ColorPixel(i,j,pixel_color);
         }
