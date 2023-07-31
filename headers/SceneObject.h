@@ -2,8 +2,7 @@
 #include <glm/glm.hpp>
 #include "Ray.h"
 
-class HitPayload {
-public:
+struct HitPayload {
     glm::vec4 color;
     float depth = FLT_MAX;
     glm::vec3 normal;
@@ -11,6 +10,6 @@ public:
 
 class SceneObject {
 public:
-	virtual bool Hit(Ray ray, HitPayload& payload) const = 0;
+	virtual HitPayload Hit(const Ray& ray) const = 0;
 };
 

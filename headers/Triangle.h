@@ -29,8 +29,9 @@ public:
 			"\nv3: " + std::to_string(_v3.position.x) + ", " + std::to_string(_v3.position.y) + ", " + std::to_string(_v3.position.z);
 	}
 	// Inherited via Hittable
-	virtual bool Hit(Ray ray, HitPayload& payload) const override
+	virtual HitPayload Hit(const Ray& ray) const override
 	{
+		HitPayload payload;
 		using namespace glm;
 
 		float D = -(_faceNormal.x * _v1.position.x + _faceNormal.y * _v1.position.y + _faceNormal.z * _v1.position.z); // z rownania plaszczyzny wyliczamy D- odleglosc od origin
@@ -39,13 +40,17 @@ public:
 
 		if (rayNormalDot < 0.0005f) // promieñ jest rownolegly do plaszczyzny lub trafia w tyl trojkata
 		{
-			return false; //idk napewno nie kolor trojkata
+			payload.depth = -2.0f;
+			return payload; //idk napewno nie kolor trojkata
 		}
 
 		float t = (glm::dot(_faceNormal, ray.getOrigin()) + D) / rayNormalDot;
 
 		if (t < 0)
-			return false; // przeciecie za kamer¹
+		{
+			payload.depth = -1.0f;
+			return payload; //idk napewno nie kolor trojkata
+		}
 
 		vec3 hitPoint = ray.getOrigin() + t * ray.getDirection();
 
@@ -64,12 +69,12 @@ public:
 		float d3 = dot(_faceNormal, cross(edge2, C2));
 
 		//std::cout << d1 << ", " << d2 << ", " << d3 << ", " << std::endl;
-		if (d1 > 0 &&
+		if (!(d1 > 0 &&
 			d2 > 0 &&
-			d3 > 0)
-			return true; // punkt przeciecia jest wewnatrz trojkata
-		else
-			return false;
+			d3 > 0))
+			payload.depth = -3.0f; // punkt przeciecia jest wewnatrz trojkata
+		
+		return payload;
 	}
 
 };
