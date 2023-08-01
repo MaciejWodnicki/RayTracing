@@ -15,6 +15,13 @@ OutputFile::OutputFile(int width, int height)
 
 }
 
+OutputFile::OutputFile(OutputFile& file)
+{
+	_pixelArray = std::move(file._pixelArray);
+	_width = file._width;
+	_height = file._height;
+}
+
 void OutputFile::ColorPixel(int x, int y, glm::vec3 color)
 {
 	_pixelArray[x][y] = color;
@@ -53,4 +60,14 @@ void OutputFile::saveFile()
 
 	file.close();
 	
+}
+
+int OutputFile::getWidth()
+{
+	return _width;
+}
+
+int OutputFile::getHeight()
+{
+	return _height;
 }

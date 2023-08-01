@@ -12,9 +12,13 @@ private:
 
 public:
 	OutputFile(int width, int height);
+	OutputFile(OutputFile& file);
 
 	void ColorPixel(int x, int y, glm::vec3 Color);
 
 	void saveFile();
+
+	int getWidth();
+	int getHeight();
 };
 

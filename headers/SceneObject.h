@@ -4,7 +4,7 @@
 
 struct HitPayload {
     glm::vec4 color;
-    float depth = FLT_MAX;
+    float depth = std::numeric_limits<float>::max();
     glm::vec3 normal;
 };
 
