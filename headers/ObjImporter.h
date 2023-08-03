@@ -51,6 +51,7 @@ namespace ObjImporter {
             aiColor4D diffuse;
             float roughness;
             float metalic;
+            float ior;
 
             if (aiReturn_SUCCESS == aiGetMaterialColor(material, AI_MATKEY_COLOR_DIFFUSE, &diffuse))
                 resultMesh->_material._surfaceColor = glm::vec4(diffuse.r, diffuse.g, diffuse.b, diffuse.a);
@@ -58,6 +59,8 @@ namespace ObjImporter {
                 resultMesh->_material._roughness = roughness;
             if (aiReturn_SUCCESS == aiGetMaterialFloat(material, AI_MATKEY_METALLIC_FACTOR, &metalic))
                 resultMesh->_material._metalic = metalic;
+            if (aiReturn_SUCCESS == aiGetMaterialFloat(material, AI_MATKEY_REFRACTI, &ior))
+                resultMesh->_material._refractionIndex = ior;
 
 
             //vertices
@@ -70,7 +73,7 @@ namespace ObjImporter {
                 v3.position = aiVec3ToGLM(vertices[mesh->mFaces[i].mIndices[2]]);
 
                 std::shared_ptr<Triangle> t = std::make_shared<Triangle>(v1, v2, v3);
-                resultMesh->_triangles.push_back(t);
+                resultMesh->_primitives.push_back(t);
             }
             world.push_back(resultMesh);
 

@@ -11,6 +11,7 @@ using glm::vec3;
 
 int main()
 {
+    //model import
     std::vector<std::shared_ptr<Mesh>> world;
 
     try {

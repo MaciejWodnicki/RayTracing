@@ -10,7 +10,7 @@ glm::vec3 Raytracer::CastRay(const Ray& r, const std::vector<std::shared_ptr<Mes
 
     for (auto& m : world)
     {
-        for (auto& t : m->_triangles)
+        for (auto& t : m->_primitives)
         {
             payload = t->Hit(r);
             if (payload.depth < closestPayload.depth && payload.depth>0.0f)
