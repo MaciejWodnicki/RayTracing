@@ -1,7 +1,7 @@
 #include "Raytracer.h"
 #include <execution>
 
-glm::vec3 Raytracer::CastRay(const Ray& r, const std::vector<std::shared_ptr<Mesh>>& world, glm::vec3 lightDirection)
+HitPayload Raytracer::TraceRay(const Ray& r, const std::vector<std::shared_ptr<Mesh>>& world, glm::vec3 lightDirection)
 {
     using glm::vec3;
 
@@ -20,14 +20,46 @@ glm::vec3 Raytracer::CastRay(const Ray& r, const std::vector<std::shared_ptr<Mes
             }
         }
     }
+
+    //closest hit shader
     if (closestPayload.depth > 0 && closestPayload.depth < std::numeric_limits<float>::max())
     {
-        float lightAngleFactor = glm::max<float>(glm::dot(closestPayload.normal, -lightDirection), 0.0f) / glm::pi<float>();
-        return closestPayload.color * lightAngleFactor;
+        float brightness = 0.2f;
+        float lightAngleFactor = glm::max<float>(glm::dot(closestPayload.normal, -lightDirection), 0.0f) * brightness;
+        closestPayload.color *= lightAngleFactor;
+        return closestPayload;
     }
-    vec3 unit_direction = r.getDirection() / glm::length(r.getDirection());
-    float t = 0.5 * (unit_direction.y + 1.0);
-    return (1.0f - t) * vec3(1.0f) + t * vec3(0.5, 0.7, 1.0);;
+
+    //miss shader
+
+    return Miss(r);
+}
+
+glm::vec3 Raytracer::PerPixel(float x, float y, const Ray& r, const std::vector<std::shared_ptr<Mesh>>& world, glm::vec3 lightDirection)
+{
+    glm::vec3 color(0.0f);
+    int reflectionCount = 50;
+    float contribution = 1.0f;
+    Ray ray = r;
+    for (int i = 0; i < reflectionCount; i++)
+    {
+        HitPayload payload = TraceRay(ray, world, lightDirection);
+        if (payload.depth < 0.0f)
+        {
+            color += payload.color*contribution;
+            break;
+        }
+
+        color += payload.color * contribution;
+        //color.r = glm::clamp(color.r, 0.0f, 1.0f);
+        //color.g = glm::clamp(color.g, 0.0f, 1.0f);
+        //color.b = glm::clamp(color.b, 0.0f, 1.0f);
+        contribution *=0.7f;
+
+        ray = ray.reflect(payload.normal,ray.atPosition(payload.depth));
+    }
+
+    return color;
 }
 
 void Raytracer::GenerateRays(const std::vector<std::shared_ptr<Mesh>>& world, OutputFile& file, glm::vec3 lightDirection)
@@ -35,43 +67,50 @@ void Raytracer::GenerateRays(const std::vector<std::shared_ptr<Mesh>>& world, Ou
 {
     using glm::vec3;
 
-    int image_height = file.getHeight();
-    int image_width = file.getWidth();
+    int imageHeight = file.getHeight();
+    int imageWidth = file.getWidth();
 
     // Camera 
-    float viewport_height = 2.0;
-    float viewport_width = image_width / (float)image_height * viewport_height;
-    float focal_length = 2.0;
+    float viewportHeight = 2.0;
+    float viewportWidth = imageWidth / (float)imageHeight * viewportHeight;
+    float focalLength = 2.0;
 
     vec3 origin = vec3(0, 0, 5.0f);
-    vec3 horizontal = vec3(viewport_width, 0, 0);
-    vec3 vertical = vec3(0, viewport_height, 0);
-    vec3 lower_left_corner = origin - horizontal / 2.0f - vertical / 2.0f - vec3(0, 0, focal_length);
+    vec3 horizontal = vec3(viewportWidth, 0, 0);
+    vec3 vertical = vec3(0, viewportHeight, 0);
+    vec3 bottomLeftCorner = origin - horizontal / 2.0f - vertical / 2.0f - vec3(0, 0, focalLength);
 
 
-    std::vector<int> verticalIter(image_height);
-    for (int j = image_height - 1; j >= 0; --j)
+    std::vector<int> verticalIter(imageHeight);
+    for (int j = imageHeight - 1; j >= 0; --j)
         verticalIter[j] = j;
 
     std::atomic_int scanlinesDone = 0;
 
     std::for_each(std::execution::par, verticalIter.begin(), verticalIter.end(), [&](int j) {
-        std::cerr << "\rScanlines remaining: " << image_height - scanlinesDone << ' ' << std::flush;
-        for (int i = 0; i < image_width; ++i) {
-            float u = double(i) / (image_width - 1);
-            float v = double(j) / (image_height - 1);
+        std::cerr << "\rScanlines remaining: " << imageHeight - scanlinesDone << ' ' << std::flush;
+        for (int i = 0; i < imageWidth; ++i) {
+            float x = (float)i / (imageWidth - 1);
+            float y = (float)j / (imageHeight - 1);
 
-            Ray r(origin, lower_left_corner + u * horizontal + v * vertical - origin);
+            Ray ray(origin, bottomLeftCorner + x * horizontal + y * vertical - origin);
 
-            vec3 pixel_color = CastRay(r, world, lightDirection);
+            vec3 pixel_color = PerPixel(x, y, ray, world, lightDirection);
 
             file.ColorPixel(i, j, pixel_color);
         }
         scanlinesDone++;
-        });
+    });
 }
 
-glm::vec3 Raytracer::Miss(const Ray& r)
+HitPayload Raytracer::Miss(const Ray& r)
 {
-    return glm::vec3(-1.0f);
+    HitPayload payload;
+    //sky color gradient
+    glm::vec3 unit_direction = r.getDirection() / glm::length(r.getDirection());
+    float t = 0.5 * (unit_direction.y + 1.0);
+    payload.color = glm::vec4((1.0f - t) * glm::vec3(1.0f) + t * glm::vec3(0.5, 0.7, 1.0), 1.0f);
+    payload.depth = -1.0f;
+
+    return payload;
 }

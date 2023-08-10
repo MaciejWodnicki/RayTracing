@@ -15,8 +15,19 @@ public:
 	glm::vec3 getOrigin() const { return _origin; }
 	glm::vec3 getDirection() const { return _direction; }
 
-	glm::vec3 atPosition(float t)
+	glm::vec3 atPosition(float t) const 
 	{
 		return _origin + t * _direction;
+	}
+
+	Ray reflect(glm::vec3 normal, glm::vec3 hitPoint)
+	{
+		
+		glm::vec3 direction = glm::reflect(_direction, normal);
+		glm::vec3 origin = hitPoint + normal * 0.0001f;
+		
+		Ray reflectedRay(origin, direction);
+
+		return reflectedRay;
 	}
 };

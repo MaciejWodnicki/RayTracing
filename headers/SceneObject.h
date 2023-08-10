@@ -3,7 +3,7 @@
 #include "Ray.h"
 
 struct HitPayload {
-    glm::vec4 color;
+    glm::vec3 color;
     float depth = std::numeric_limits<float>::max();
     glm::vec3 normal;
 };

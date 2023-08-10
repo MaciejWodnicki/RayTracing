@@ -8,8 +8,9 @@ namespace Raytracer {
 
     void GenerateRays(const std::vector<std::shared_ptr<Mesh>>& world, OutputFile& file, glm::vec3 lightDirection);
 
-    glm::vec3 CastRay(const Ray& r, const std::vector<std::shared_ptr<Mesh>>& world, glm::vec3  lightDirection);
+    glm::vec3 PerPixel(float x, float y, const Ray& r, const std::vector<std::shared_ptr<Mesh>>& world, glm::vec3  lightDirection);
 
-    glm::vec3 Miss(const Ray& r);
+    HitPayload TraceRay(const Ray& r, const std::vector<std::shared_ptr<Mesh>>& world, glm::vec3  lightDirection);
 
+    HitPayload Miss(const Ray& r);
 }
