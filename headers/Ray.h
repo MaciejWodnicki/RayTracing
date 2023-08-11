@@ -20,10 +20,10 @@ public:
 		return _origin + t * _direction;
 	}
 
-	Ray reflect(glm::vec3 normal, glm::vec3 hitPoint)
+	Ray reflect(glm::vec3 normal, glm::vec3 hitPoint, Material material)
 	{
 		
-		glm::vec3 direction = glm::reflect(_direction, normal);
+		glm::vec3 direction = glm::reflect(_direction, normal) + glm::linearRand(glm::vec3(-0.5f, -0.5f, 0.0f),glm::vec3(0.5f, 0.5f, 0.0f)) * material._roughness;
 		glm::vec3 origin = hitPoint + normal * 0.0001f;
 		
 		Ray reflectedRay(origin, direction);

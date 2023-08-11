@@ -40,7 +40,7 @@ public:
 
 		if (rayNormalDot < 0.0005f) // promieñ jest rownolegly do plaszczyzny lub trafia w tyl trojkata
 		{
-			payload.depth = -2.0f;
+			payload._depth = -2.0f;
 			return payload; //idk napewno nie kolor trojkata
 		}
 
@@ -48,14 +48,14 @@ public:
 
 		if (t < 0)
 		{
-			payload.depth = -1.0f;
+			payload._depth = -1.0f;
 			return payload; //idk napewno nie kolor trojkata
 		}
 
 		vec3 hitPoint = ray.getOrigin() + t * ray.getDirection();
 
-		payload.depth = t;
-		payload.normal = _faceNormal;
+		payload._depth = t;
+		payload._normal = _faceNormal;
 
 		vec3 edge0 = _v2.position - _v1.position;
 		vec3 edge1 = _v3.position - _v2.position;
@@ -72,7 +72,7 @@ public:
 		if (!(d1 > 0 &&
 			d2 > 0 &&
 			d3 > 0))
-			payload.depth = -3.0f; // punkt przeciecia jest wewnatrz trojkata
+			payload._depth = -3.0f; // punkt przeciecia jest wewnatrz trojkata
 		
 		return payload;
 	}

@@ -1,6 +1,5 @@
 #include "Raytracer.h"
 #include <execution>
-#include <glm/gtc/random.hpp>
 
 HitPayload Raytracer::TraceRay(const Ray& r, const std::vector<std::shared_ptr<Mesh>>& world, glm::vec3 lightDirection)
 {
@@ -14,20 +13,20 @@ HitPayload Raytracer::TraceRay(const Ray& r, const std::vector<std::shared_ptr<M
         for (auto& t : m->_primitives)
         {
             payload = t->Hit(r);
-            if (payload.depth < closestPayload.depth && payload.depth>0.0f)
+            if (payload._depth < closestPayload._depth && payload._depth>0.0f)
             {
                 closestPayload = payload;
-                closestPayload.color = m->_material._surfaceColor;
+                closestPayload._material = m->_material;
             }
         }
     }
 
     //closest hit shader
-    if (closestPayload.depth > 0 && closestPayload.depth < std::numeric_limits<float>::max())
+    if (closestPayload._depth > 0 && closestPayload._depth < std::numeric_limits<float>::max())
     {
-        float brightness = 2.5f;
-        float lightAngleFactor = glm::max<float>(glm::dot(closestPayload.normal, -lightDirection), 0.0f) * brightness;
-        closestPayload.color *= lightAngleFactor;
+        float brightness = 0.5f;
+        float lightAngleFactor = glm::max<float>(glm::dot(closestPayload._normal, -lightDirection), 0.0f) * brightness;
+        closestPayload._material._albedo *= lightAngleFactor;
         return closestPayload;
     }
 
@@ -38,26 +37,26 @@ HitPayload Raytracer::TraceRay(const Ray& r, const std::vector<std::shared_ptr<M
 
 glm::vec3 Raytracer::PerPixel(float x, float y, const Ray& r, const std::vector<std::shared_ptr<Mesh>>& world, glm::vec3 lightDirection)
 {
-    glm::vec3 color(0.0f);
-    int reflectionCount = 50;
-    glm::vec3 contribution(1.0f);
+    glm::vec4 color(0.0f);
+    int reflectionCount = REFLECTION_RESOLUTION;
+    glm::vec4 contribution(1.0f);
     Ray ray = r;
     for (int i = 0; i < reflectionCount; i++)
     {
         HitPayload payload = TraceRay(ray, world, lightDirection);
-        if (payload.depth < 0.0f)
+        if (payload._depth < 0.0f)
         {
-            color += payload.color*contribution;
+            color += payload._material._albedo *contribution;
             break;
         }
 
-        contribution *= payload.color;
-        color += payload.color * contribution;
+        contribution *= payload._material._albedo;
+        color += payload._material._albedo * contribution;
 
-        ray = ray.reflect(payload.normal,ray.atPosition(payload.depth));
+        ray = ray.reflect(payload._normal,ray.atPosition(payload._depth), payload._material);
     }
 
-    color = glm::clamp(color, glm::vec3(0.0f), glm::vec3(1.0f));
+    color = glm::clamp(color, glm::vec4(0.0f), glm::vec4(1.0f));
 
     return color;
 }
@@ -70,7 +69,7 @@ void Raytracer::GenerateRays(const std::vector<std::shared_ptr<Mesh>>& world, Ou
     int imageHeight = file.getHeight();
     int imageWidth = file.getWidth();
 
-    int samplesPerPixel = 10;
+    int samplesPerPixel = SAMPLES_PER_PIXEL;
     float antialiasingFactor = 0.002f;
 
     // Camera 
@@ -119,8 +118,8 @@ HitPayload Raytracer::Miss(const Ray& r)
     //sky color gradient
     glm::vec3 unit_direction = r.getDirection() / glm::length(r.getDirection());
     float t = 0.5 * (unit_direction.y + 1.0);
-    payload.color = glm::vec4((1.0f - t) * glm::vec3(1.0f) + t * glm::vec3(0.5, 0.7, 1.0), 1.0f);
-    payload.depth = -1.0f;
+    payload._material._albedo = glm::vec4((1.0f - t) * glm::vec3(1.0f) + t * glm::vec3(0.5, 0.7, 1.0), 1.0f);
+    payload._depth = -1.0f;
 
     return payload;
 }
