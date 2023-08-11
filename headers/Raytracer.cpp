@@ -25,7 +25,7 @@ HitPayload Raytracer::TraceRay(const Ray& r, const std::vector<std::shared_ptr<M
     //closest hit shader
     if (closestPayload.depth > 0 && closestPayload.depth < std::numeric_limits<float>::max())
     {
-        float brightness = 0.5f;
+        float brightness = 2.5f;
         float lightAngleFactor = glm::max<float>(glm::dot(closestPayload.normal, -lightDirection), 0.0f) * brightness;
         closestPayload.color *= lightAngleFactor;
         return closestPayload;
@@ -53,12 +53,11 @@ glm::vec3 Raytracer::PerPixel(float x, float y, const Ray& r, const std::vector<
 
         contribution *= payload.color;
         color += payload.color * contribution;
-        //color.r = glm::clamp(color.r, 0.0f, 1.0f);
-        //color.g = glm::clamp(color.g, 0.0f, 1.0f);
-        //color.b = glm::clamp(color.b, 0.0f, 1.0f);
 
         ray = ray.reflect(payload.normal,ray.atPosition(payload.depth));
     }
+
+    color = glm::clamp(color, glm::vec3(0.0f), glm::vec3(1.0f));
 
     return color;
 }
@@ -102,7 +101,7 @@ void Raytracer::GenerateRays(const std::vector<std::shared_ptr<Mesh>>& world, Ou
             for (int s = 0; s < samplesPerPixel; s++) 
             {
                 glm::vec3 randOffset = glm::linearRand(glm::vec3(-antialiasingFactor, -antialiasingFactor, 0.0f), glm::vec3(antialiasingFactor, antialiasingFactor, 0.0f));
-                Ray ray(origin+ randOffset,
+                Ray ray(origin+ randOffset, 
                     bottomLeftCorner + x * horizontal + y * vertical - origin - randOffset);
 
                 pixelColor += PerPixel(x, y, ray, world, lightDirection)/(float)samplesPerPixel;
