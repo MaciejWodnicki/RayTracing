@@ -1,5 +1,6 @@
 #include "Raytracer.h"
 #include <execution>
+#include <glm/gtc/random.hpp>
 
 HitPayload Raytracer::TraceRay(const Ray& r, const std::vector<std::shared_ptr<Mesh>>& world, glm::vec3 lightDirection)
 {
@@ -24,7 +25,7 @@ HitPayload Raytracer::TraceRay(const Ray& r, const std::vector<std::shared_ptr<M
     //closest hit shader
     if (closestPayload.depth > 0 && closestPayload.depth < std::numeric_limits<float>::max())
     {
-        float brightness = 0.2f;
+        float brightness = 0.5f;
         float lightAngleFactor = glm::max<float>(glm::dot(closestPayload.normal, -lightDirection), 0.0f) * brightness;
         closestPayload.color *= lightAngleFactor;
         return closestPayload;
@@ -39,7 +40,7 @@ glm::vec3 Raytracer::PerPixel(float x, float y, const Ray& r, const std::vector<
 {
     glm::vec3 color(0.0f);
     int reflectionCount = 50;
-    float contribution = 1.0f;
+    glm::vec3 contribution(1.0f);
     Ray ray = r;
     for (int i = 0; i < reflectionCount; i++)
     {
@@ -50,11 +51,11 @@ glm::vec3 Raytracer::PerPixel(float x, float y, const Ray& r, const std::vector<
             break;
         }
 
+        contribution *= payload.color;
         color += payload.color * contribution;
         //color.r = glm::clamp(color.r, 0.0f, 1.0f);
         //color.g = glm::clamp(color.g, 0.0f, 1.0f);
         //color.b = glm::clamp(color.b, 0.0f, 1.0f);
-        contribution *=0.7f;
 
         ray = ray.reflect(payload.normal,ray.atPosition(payload.depth));
     }
@@ -69,6 +70,9 @@ void Raytracer::GenerateRays(const std::vector<std::shared_ptr<Mesh>>& world, Ou
 
     int imageHeight = file.getHeight();
     int imageWidth = file.getWidth();
+
+    int samplesPerPixel = 10;
+    float antialiasingFactor = 0.002f;
 
     // Camera 
     float viewportHeight = 2.0;
@@ -93,11 +97,18 @@ void Raytracer::GenerateRays(const std::vector<std::shared_ptr<Mesh>>& world, Ou
             float x = (float)i / (imageWidth - 1);
             float y = (float)j / (imageHeight - 1);
 
-            Ray ray(origin, bottomLeftCorner + x * horizontal + y * vertical - origin);
+            vec3 pixelColor(0.0f);
+            //antialiasing
+            for (int s = 0; s < samplesPerPixel; s++) 
+            {
+                glm::vec3 randOffset = glm::linearRand(glm::vec3(-antialiasingFactor, -antialiasingFactor, 0.0f), glm::vec3(antialiasingFactor, antialiasingFactor, 0.0f));
+                Ray ray(origin+ randOffset,
+                    bottomLeftCorner + x * horizontal + y * vertical - origin - randOffset);
 
-            vec3 pixel_color = PerPixel(x, y, ray, world, lightDirection);
+                pixelColor += PerPixel(x, y, ray, world, lightDirection)/(float)samplesPerPixel;
+            }
 
-            file.ColorPixel(i, j, pixel_color);
+            file.ColorPixel(i, j, pixelColor);
         }
         scanlinesDone++;
     });
