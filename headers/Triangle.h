@@ -29,7 +29,7 @@ public:
 			"\nv3: " + std::to_string(_v3.position.x) + ", " + std::to_string(_v3.position.y) + ", " + std::to_string(_v3.position.z);
 	}
 	// Inherited via Hittable
-	virtual HitPayload Hit(const Ray& ray) const override
+	virtual HitPayload Hit(const Ray& ray) const override //-1 = back or parrarel, -2 = behind ray origin, -3 = nie jest w trojkacie
 	{
 		HitPayload payload;
 		using namespace glm;
@@ -38,18 +38,18 @@ public:
 
 		float rayNormalDot =dot(_faceNormal, -ray.getDirection());
 
-		if (rayNormalDot < 0.0005f) // promieñ jest rownolegly do plaszczyzny lub trafia w tyl trojkata
+		if (rayNormalDot < 0.0005f) // promieñ jest rownolegly do plaszczyzny lub trafia w tyl plaszczyzny trojkata
 		{
-			payload._depth = -2.0f;
-			return payload; //idk napewno nie kolor trojkata
+			payload._depth = -1.0f;
+			return payload;
 		}
 
 		float t = (glm::dot(_faceNormal, ray.getOrigin()) + D) / rayNormalDot;
 
 		if (t < 0)
 		{
-			payload._depth = -1.0f;
-			return payload; //idk napewno nie kolor trojkata
+			payload._depth = -2.0f;
+			return payload;
 		}
 
 		vec3 hitPoint = ray.getOrigin() + t * ray.getDirection();
@@ -72,7 +72,7 @@ public:
 		if (!(d1 > 0 &&
 			d2 > 0 &&
 			d3 > 0))
-			payload._depth = -3.0f; // punkt przeciecia jest wewnatrz trojkata
+			payload._depth = -3.0f; // punkt przeciecia jest na zewnatrz trojkata
 		
 		return payload;
 	}

@@ -24,9 +24,6 @@ HitPayload Raytracer::TraceRay(const Ray& r, const std::vector<std::shared_ptr<M
     //closest hit shader
     if (closestPayload._depth > 0 && closestPayload._depth < std::numeric_limits<float>::max())
     {
-        //float brightness = 1.0f;
-        //float lightAngleFactor = glm::max<float>(glm::dot(closestPayload._normal, -lightDirection), 0.0f) * brightness;
-        //closestPayload._material._albedo *= lightAngleFactor;
         return closestPayload;
     }
 
@@ -39,19 +36,25 @@ glm::vec3 Raytracer::PerPixel(float x, float y, const Ray& r, const std::vector<
 {
     glm::vec4 color(0.0f);
     int reflectionCount = REFLECTION_RESOLUTION;
-    glm::vec4 contribution(1.0f);
+    glm::vec4 rayColor(1.0f);
     Ray ray = r;
     for (int i = 0; i < reflectionCount; i++)
     {
         HitPayload payload = TraceRay(ray, world, lightDirection);
         if (payload._depth < 0.0f)
         {
-            color += payload._material._albedo *contribution;
+            color += payload._material._albedo *rayColor;
             break;
         }
 
-        color += payload._material._albedo * contribution;
-        contribution *= payload._material._albedo;
+        color += payload._material._albedo * rayColor;
+        rayColor *= payload._material._albedo;
+
+        //shadow
+        Ray ShadowRay(ray.atPosition(payload._depth), -lightDirection);
+
+        if (IsDirectlyIlluminated(ShadowRay, world, lightDirection))
+            color = glm::vec4(0.0f);
 
         ray = ray.reflect(payload._normal,ray.atPosition(payload._depth), payload._material);
     }
@@ -112,6 +115,27 @@ void Raytracer::GenerateRays(const std::vector<std::shared_ptr<Mesh>>& world, Ou
     });
 }
 
+bool Raytracer::IsDirectlyIlluminated(const Ray& r, const std::vector<std::shared_ptr<Mesh>>& world, glm::vec3 lightDirection)
+{
+    using glm::vec3;
+
+    HitPayload payload;
+
+    for (auto& m : world)
+    {
+        for (auto& t : m->_primitives)
+        {
+            payload = t->Hit(r);
+            if (payload._depth > -2.0f)
+            {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
 HitPayload Raytracer::Miss(const Ray& r)
 {
     HitPayload payload;
@@ -123,3 +147,5 @@ HitPayload Raytracer::Miss(const Ray& r)
 
     return payload;
 }
+
+

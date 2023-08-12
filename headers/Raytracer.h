@@ -11,6 +11,7 @@ namespace Raytracer {
     glm::vec3 PerPixel(float x, float y, const Ray& r, const std::vector<std::shared_ptr<Mesh>>& world, glm::vec3  lightDirection);
 
     HitPayload TraceRay(const Ray& r, const std::vector<std::shared_ptr<Mesh>>& world, glm::vec3  lightDirection);
+    bool IsDirectlyIlluminated(const Ray& r, const std::vector<std::shared_ptr<Mesh>>& world, glm::vec3  lightDirection);
 
     HitPayload Miss(const Ray& r);
 }

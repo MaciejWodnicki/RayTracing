@@ -30,4 +30,11 @@ public:
 
 		return reflectedRay;
 	}
+
+	Ray& UpdateRay(glm::vec3 origin, glm::vec3 direction)
+	{
+		_origin = origin;
+		_direction = direction;
+		return *this;
+	}
 };
