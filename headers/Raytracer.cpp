@@ -47,14 +47,14 @@ glm::vec3 Raytracer::PerPixel(float x, float y, const Ray& r, const std::vector<
             break;
         }
 
-        color += payload._material._albedo * rayColor;
+        color += payload._material._albedo * rayColor*0.2f;
         rayColor *= payload._material._albedo;
 
         //shadow
-        Ray ShadowRay(ray.atPosition(payload._depth), -lightDirection);
-
-        if (IsDirectlyIlluminated(ShadowRay, world, lightDirection))
-            color = glm::vec4(0.0f);
+        Ray ShadowRay(ray.atPosition(payload._depth) + payload._normal*0.01f, -lightDirection);
+        if (!IsDirectlyIlluminated(ShadowRay, world, lightDirection))
+            rayColor = glm::vec4(0.0f);
+        
 
         ray = ray.reflect(payload._normal,ray.atPosition(payload._depth), payload._material);
     }
@@ -126,7 +126,7 @@ bool Raytracer::IsDirectlyIlluminated(const Ray& r, const std::vector<std::share
         for (auto& t : m->_primitives)
         {
             payload = t->Hit(r);
-            if (payload._depth > -2.0f)
+            if (payload._depth > -0.1f)
             {
                 return false;
             }
