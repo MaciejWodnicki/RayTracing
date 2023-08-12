@@ -24,9 +24,9 @@ HitPayload Raytracer::TraceRay(const Ray& r, const std::vector<std::shared_ptr<M
     //closest hit shader
     if (closestPayload._depth > 0 && closestPayload._depth < std::numeric_limits<float>::max())
     {
-        float brightness = 0.5f;
-        float lightAngleFactor = glm::max<float>(glm::dot(closestPayload._normal, -lightDirection), 0.0f) * brightness;
-        closestPayload._material._albedo *= lightAngleFactor;
+        //float brightness = 1.0f;
+        //float lightAngleFactor = glm::max<float>(glm::dot(closestPayload._normal, -lightDirection), 0.0f) * brightness;
+        //closestPayload._material._albedo *= lightAngleFactor;
         return closestPayload;
     }
 
@@ -50,8 +50,8 @@ glm::vec3 Raytracer::PerPixel(float x, float y, const Ray& r, const std::vector<
             break;
         }
 
-        contribution *= payload._material._albedo;
         color += payload._material._albedo * contribution;
+        contribution *= payload._material._albedo;
 
         ray = ray.reflect(payload._normal,ray.atPosition(payload._depth), payload._material);
     }
