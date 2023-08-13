@@ -47,14 +47,14 @@ glm::vec3 Raytracer::PerPixel(float x, float y, const Ray& r, const std::vector<
             break;
         }
 
-        color += payload._material._albedo * rayColor*0.2f;
-        rayColor *= payload._material._albedo;
-
         //shadow
-        Ray ShadowRay(ray.atPosition(payload._depth) + payload._normal*0.01f, -lightDirection);
-        if (!IsDirectlyIlluminated(ShadowRay, world, lightDirection))
-            rayColor = glm::vec4(0.0f);
-        
+        Ray ShadowRay(ray.atPosition(payload._depth) + payload._normal*0.0001f, -lightDirection);
+        if (IsDirectlyIlluminated(ShadowRay, world, lightDirection,payload._normal))
+        {
+            color += payload._material._albedo * rayColor;
+        }
+        color += payload._material._albedo * rayColor; //diffuse
+        rayColor *= payload._material._albedo; //light accumulation
 
         ray = ray.reflect(payload._normal,ray.atPosition(payload._depth), payload._material);
     }
@@ -106,7 +106,7 @@ void Raytracer::GenerateRays(const std::vector<std::shared_ptr<Mesh>>& world, Ou
                 Ray ray(origin+ randOffset, 
                     bottomLeftCorner + x * horizontal + y * vertical - origin - randOffset);
 
-                pixelColor += PerPixel(x, y, ray, world, lightDirection)/(float)samplesPerPixel;
+                pixelColor +=  GAMMA *PerPixel(x, y, ray, world, lightDirection)/(float)samplesPerPixel;
             }
 
             file.ColorPixel(i, j, pixelColor);
@@ -115,11 +115,14 @@ void Raytracer::GenerateRays(const std::vector<std::shared_ptr<Mesh>>& world, Ou
     });
 }
 
-bool Raytracer::IsDirectlyIlluminated(const Ray& r, const std::vector<std::shared_ptr<Mesh>>& world, glm::vec3 lightDirection)
+bool Raytracer::IsDirectlyIlluminated(const Ray& r, const std::vector<std::shared_ptr<Mesh>>& world, glm::vec3 lightDirection, glm::vec3 surfaceNormal)
 {
     using glm::vec3;
 
     HitPayload payload;
+
+    if (glm::dot(surfaceNormal, -lightDirection) <= 0.0f)
+        return true;
 
     for (auto& m : world)
     {
