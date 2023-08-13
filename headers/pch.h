@@ -25,7 +25,7 @@ struct HitPayload {
 
 #define SAMPLES_PER_PIXEL 5   //antialiasing
 #define IMAGE_WIDTH 600          //resolution
-#define REFLECTION_RESOLUTION 5  //reflection depth
+#define REFLECTION_RESOLUTION 20  //reflection depth
 #define GAMMA 0.5f
 
 

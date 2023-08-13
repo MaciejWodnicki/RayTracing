@@ -43,7 +43,7 @@ glm::vec3 Raytracer::PerPixel(float x, float y, const Ray& r, const std::vector<
         HitPayload payload = TraceRay(ray, world, lightDirection);
         if (payload._depth < 0.0f)
         {
-            color += payload._material._albedo *rayColor;
+            color += payload._material._albedo * rayColor;
             break;
         }
 
@@ -52,12 +52,14 @@ glm::vec3 Raytracer::PerPixel(float x, float y, const Ray& r, const std::vector<
         if (IsDirectlyIlluminated(ShadowRay, world, lightDirection,payload._normal))
         {
             color += payload._material._albedo * rayColor;
+
         }
-        color += payload._material._albedo * rayColor; //diffuse
         rayColor *= payload._material._albedo; //light accumulation
+
 
         ray = ray.reflect(payload._normal,ray.atPosition(payload._depth), payload._material);
     }
+
 
     color = glm::clamp(color, glm::vec4(0.0f), glm::vec4(1.0f));
 
@@ -106,7 +108,7 @@ void Raytracer::GenerateRays(const std::vector<std::shared_ptr<Mesh>>& world, Ou
                 Ray ray(origin+ randOffset, 
                     bottomLeftCorner + x * horizontal + y * vertical - origin - randOffset);
 
-                pixelColor +=  GAMMA *PerPixel(x, y, ray, world, lightDirection)/(float)samplesPerPixel;
+                pixelColor += PerPixel(x, y, ray, world, lightDirection)/(float)samplesPerPixel;
             }
 
             file.ColorPixel(i, j, pixelColor);
@@ -122,7 +124,7 @@ bool Raytracer::IsDirectlyIlluminated(const Ray& r, const std::vector<std::share
     HitPayload payload;
 
     if (glm::dot(surfaceNormal, -lightDirection) <= 0.0f)
-        return true;
+        return false;
 
     for (auto& m : world)
     {
