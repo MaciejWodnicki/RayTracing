@@ -1,7 +1,7 @@
 #include "Raytracer.h"
 #include <execution>
 
-HitPayload Raytracer::TraceRay(const Ray& r, const std::vector<std::shared_ptr<Mesh>>& world, glm::vec3 lightDirection)
+HitPayload Raytracer::TraceRay(const Ray& r, const std::vector<std::shared_ptr<Mesh>>& world)
 {
     using glm::vec3;
 
@@ -35,29 +35,39 @@ HitPayload Raytracer::TraceRay(const Ray& r, const std::vector<std::shared_ptr<M
 glm::vec3 Raytracer::PerPixel(float x, float y, const Ray& r, const std::vector<std::shared_ptr<Mesh>>& world, glm::vec3 lightDirection)
 {
     glm::vec4 color(0.0f);
+    glm::vec4 tcolor(0.0f);
     int reflectionCount = REFLECTION_RESOLUTION;
     glm::vec4 rayColor(1.0f);
+
     Ray ray = r;
     for (int i = 0; i < reflectionCount; i++)
     {
-        HitPayload payload = TraceRay(ray, world, lightDirection);
+        HitPayload payload = TraceRay(ray, world);
+
         if (payload._depth < 0.0f)
         {
             color += payload._material._albedo * rayColor;
             break;
         }
-
-        //shadow
-        Ray ShadowRay(ray.atPosition(payload._depth) + payload._normal*0.0001f, -lightDirection);
-        if (IsDirectlyIlluminated(ShadowRay, world, lightDirection,payload._normal))
+        else
         {
-            color += payload._material._albedo * rayColor;
+            //shadow
+            Ray ShadowRay(ray.atPosition(payload._depth) + payload._normal * 0.0001f, -lightDirection);
+            if (IsDirectlyIlluminated(ShadowRay, world, lightDirection, payload._normal))
+            {
+                color += payload._material._albedo *rayColor;
+            }
 
+            rayColor *= payload._material._albedo; //light accumulation
         }
-        rayColor *= payload._material._albedo; //light accumulation
+  
+        glm::vec3 diffuseRay = ray.reflect(payload._normal,ray.atPosition(payload._depth), payload._material).getDirection();
+        glm::vec3 specularRay = glm::reflect(ray.getDirection(),payload._normal);
+        ray.UpdateRay(ray.atPosition(payload._depth), glm::mix(diffuseRay,specularRay,1-payload._material._roughness));
+  
 
 
-        ray = ray.reflect(payload._normal,ray.atPosition(payload._depth), payload._material);
+
     }
 
 

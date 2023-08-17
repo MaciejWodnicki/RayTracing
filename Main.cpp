@@ -28,7 +28,7 @@ int main()
     const int image_height = static_cast<int>(image_width / aspect_ratio);
 
     //light
-    glm::vec3 lightDirection = glm::normalize(glm::vec3(-1, -1, -1));
+    glm::vec3 lightDirection = glm::normalize(glm::vec3(-1, -1, 0));// UP -Y; RIGHT -X; FORWOARD -Z;
 
     // Render
     OutputFile file(image_width, image_height);

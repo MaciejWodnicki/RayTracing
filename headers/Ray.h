@@ -23,7 +23,7 @@ public:
 	Ray reflect(glm::vec3 normal, glm::vec3 hitPoint, Material material)
 	{
 		
-		glm::vec3 direction = glm::reflect(_direction, normal) + glm::normalize(glm::linearRand(glm::vec3(-0.5f),glm::vec3(0.5f))+normal) * material._roughness;
+		glm::vec3 direction = glm::reflect(_direction, normal) + glm::normalize(glm::sphericalRand(1.0f) + normal) * material._roughness;
 		glm::vec3 origin = hitPoint + normal * 0.0001f;
 		
 		Ray reflectedRay(origin, direction);
