@@ -34,46 +34,42 @@ public:
 		HitPayload payload;
 		using namespace glm;
 
-		float D = -(_faceNormal.x * _v1.position.x + _faceNormal.y * _v1.position.y + _faceNormal.z * _v1.position.z); // z rownania plaszczyzny wyliczamy D- odleglosc od origin
+		//https://www.scratchapixel.com/lessons/3d-basic-rendering/ray-tracing-rendering-a-triangle/moller-trumbore-ray-triangle-intersection.html
 
-		float rayNormalDot =dot(_faceNormal, -ray.getDirection());
+		vec3 v1v2 = _v2.position - _v1.position;
+		vec3 v1v3 = _v3.position - _v1.position;
+		vec3 pvec = cross(ray.getDirection(),v1v3);
+		float det = dot(v1v2,pvec);
 
-		if (rayNormalDot < 0.0005f) // promieñ jest rownolegly do plaszczyzny lub trafia w tyl plaszczyzny trojkata
+		if (det < 0.0005f) // promieñ jest rownolegly do plaszczyzny lub trafia w tyl plaszczyzny trojkata
 		{
 			payload._depth = -1.0f;
 			return payload;
 		}
 
-		float t = (glm::dot(_faceNormal, ray.getOrigin()) + D) / rayNormalDot;
+		float invDet = 1 / det;
 
-		if (t < 0)
+		vec3 tvec = ray.getOrigin() - _v1.position;
+		float u = dot(tvec, pvec) * invDet;
+		if (u < 0 || u > 1)
 		{
 			payload._depth = -2.0f;
 			return payload;
 		}
+		vec3 qvec = cross(tvec, v1v2);
+		float v = dot(ray.getDirection(), qvec) * invDet;
+		if (v < 0 || u + v > 1)
+		{
+			payload._depth = -2.0f;
+			return payload;
+		}
+		float t = dot(v1v3,qvec) * invDet;
 
-		vec3 hitPoint = ray.getOrigin() + t * ray.getDirection();
 
 		payload._depth = t;
 		payload._normal = _faceNormal;
 
-		vec3 edge0 = _v2.position - _v1.position;
-		vec3 edge1 = _v3.position - _v2.position;
-		vec3 edge2 = _v1.position - _v3.position;
-		vec3 C0 = hitPoint - _v1.position;
-		vec3 C1 = hitPoint - _v2.position;
-		vec3 C2 = hitPoint - _v3.position;
 
-		float d1 = dot(_faceNormal, cross(edge0, C0));
-		float d2 = dot(_faceNormal, cross(edge1, C1));
-		float d3 = dot(_faceNormal, cross(edge2, C2));
-
-		//std::cout << d1 << ", " << d2 << ", " << d3 << ", " << std::endl;
-		if (!(d1 > 0 &&
-			d2 > 0 &&
-			d3 > 0))
-			payload._depth = -3.0f; // punkt przeciecia jest na zewnatrz trojkata
-		
 		return payload;
 	}
 

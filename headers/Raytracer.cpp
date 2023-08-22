@@ -49,24 +49,18 @@ glm::vec3 Raytracer::PerPixel(float x, float y, const Ray& r, const std::vector<
             color += payload._material._albedo * rayColor;
             break;
         }
-        else
-        {
-            //shadow
-            Ray ShadowRay(ray.atPosition(payload._depth) + payload._normal * 0.0001f, -lightDirection);
-            if (IsDirectlyIlluminated(ShadowRay, world, lightDirection, payload._normal))
-            {
-                color += payload._material._albedo *rayColor;
-            }
 
-            rayColor *= payload._material._albedo; //light accumulation
-        }
+       //shadow
+       Ray ShadowRay(ray.atPosition(payload._depth) + payload._normal * 0.0001f, -lightDirection);
+       if (IsDirectlyIlluminated(ShadowRay, world, lightDirection, payload._normal))
+       {
+           color += payload._material._albedo *rayColor;
+       }
+
+        rayColor *= payload._material._albedo; //light accumulation
+
   
-        glm::vec3 diffuseRay = ray.reflect(payload._normal,ray.atPosition(payload._depth), payload._material).getDirection();
-        glm::vec3 specularRay = glm::reflect(ray.getDirection(),payload._normal);
-        ray.UpdateRay(ray.atPosition(payload._depth), glm::mix(diffuseRay,specularRay,1-payload._material._roughness));
-  
-
-
+        ray = ray.reflect(payload._normal,ray.atPosition(payload._depth), payload._material);
 
     }
 
@@ -85,7 +79,7 @@ void Raytracer::GenerateRays(const std::vector<std::shared_ptr<Mesh>>& world, Ou
     int imageWidth = file.getWidth();
 
     int samplesPerPixel = SAMPLES_PER_PIXEL;
-    float antialiasingFactor = 0.002f;
+    float superSamplingSpread = 0.01f;
 
     // Camera 
     float viewportHeight = 2.0;
@@ -114,7 +108,7 @@ void Raytracer::GenerateRays(const std::vector<std::shared_ptr<Mesh>>& world, Ou
             //antialiasing
             for (int s = 0; s < samplesPerPixel; s++) 
             {
-                glm::vec3 randOffset = glm::linearRand(glm::vec3(-antialiasingFactor, -antialiasingFactor, 0.0f), glm::vec3(antialiasingFactor, antialiasingFactor, 0.0f));
+                glm::vec3 randOffset = glm::ballRand(superSamplingSpread);
                 Ray ray(origin+ randOffset, 
                     bottomLeftCorner + x * horizontal + y * vertical - origin - randOffset);
 
