@@ -36,10 +36,10 @@ public:
 
 		//https://www.scratchapixel.com/lessons/3d-basic-rendering/ray-tracing-rendering-a-triangle/moller-trumbore-ray-triangle-intersection.html
 
-		vec3 v1v2 = _v2.position - _v1.position;
-		vec3 v1v3 = _v3.position - _v1.position;
-		vec3 pvec = cross(ray.getDirection(),v1v3);
-		float det = dot(v1v2,pvec);
+		vec3 edge1 = _v2.position - _v1.position;
+		vec3 edge2 = _v3.position - _v1.position;
+		vec3 pvec = cross(ray.getDirection(),edge2);
+		float det = dot(edge1,pvec);	
 
 		if (det < 0.0005f) // promieñ jest rownolegly do plaszczyzny lub trafia w tyl plaszczyzny trojkata
 		{
@@ -56,18 +56,18 @@ public:
 			payload._depth = -2.0f;
 			return payload;
 		}
-		vec3 qvec = cross(tvec, v1v2);
+		vec3 qvec = cross(tvec, edge1);
 		float v = dot(ray.getDirection(), qvec) * invDet;
 		if (v < 0 || u + v > 1)
 		{
 			payload._depth = -2.0f;
 			return payload;
 		}
-		float t = dot(v1v3,qvec) * invDet;
+		float t = dot(edge2,qvec) * invDet;
 
 
 		payload._depth = t;
-		payload._normal = _faceNormal;
+		payload._normal = _faceNormal;// (1 - u - v)* _v1.normal + u * _v2.normal - v * _v3.normal;
 
 
 		return payload;

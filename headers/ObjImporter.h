@@ -26,10 +26,9 @@ namespace ObjImporter {
         using namespace std;
 
         vector<shared_ptr<Mesh>> world;
-
         Assimp::Importer importer;
 
-
+        //import i walidacja
         const aiScene* scene = importer.ReadFile(path, aiProcess_CalcTangentSpace |
             aiProcess_Triangulate |
             aiProcess_JoinIdenticalVertices |
@@ -39,13 +38,13 @@ namespace ObjImporter {
             throw std::runtime_error("scene file not found");
         }
 
-        //grab triangles and materials
+        //konwersja danych
         for (int j = 0; j < scene->mNumMeshes; j++)
         {
             std::shared_ptr<Mesh> resultMesh = std::make_shared<Mesh>();
             auto& mesh = scene->mMeshes[j];
 
-            //material
+            //materia³
             auto& material = scene->mMaterials[mesh->mMaterialIndex];
 
             aiColor4D diffuse;
@@ -55,21 +54,27 @@ namespace ObjImporter {
 
             if (aiReturn_SUCCESS == aiGetMaterialColor(material, AI_MATKEY_COLOR_DIFFUSE, &diffuse))
                 resultMesh->_material._albedo = glm::vec4(diffuse.r, diffuse.g, diffuse.b, diffuse.a);
+
             if (aiReturn_SUCCESS == aiGetMaterialFloat(material, AI_MATKEY_ROUGHNESS_FACTOR, &roughness))
                 resultMesh->_material._roughness = roughness;
+
             if (aiReturn_SUCCESS == aiGetMaterialFloat(material, AI_MATKEY_METALLIC_FACTOR, &metalic))
                 resultMesh->_material._metalic = metalic;
+
             if (aiReturn_SUCCESS == aiGetMaterialFloat(material, AI_MATKEY_REFRACTI, &ior))
                 resultMesh->_material._refractionIndex = ior;
 
 
-            //vertices
+            //wierzcho³ki
             auto& vertices = mesh->mVertices;
             Vertex v1, v2, v3;
             for (int i = 0; i < mesh->mNumFaces; i++)
             {
+
                 v1.position = aiVec3ToGLM(vertices[mesh->mFaces[i].mIndices[0]]);
+                
                 v2.position = aiVec3ToGLM(vertices[mesh->mFaces[i].mIndices[1]]);
+                
                 v3.position = aiVec3ToGLM(vertices[mesh->mFaces[i].mIndices[2]]);
 
                 std::shared_ptr<Triangle> t = std::make_shared<Triangle>(v1, v2, v3);

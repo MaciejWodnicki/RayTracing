@@ -67,6 +67,9 @@ glm::vec3 Raytracer::PerPixel(float x, float y, const Ray& r, const std::vector<
 
     color = glm::clamp(color, glm::vec4(0.0f), glm::vec4(1.0f));
 
+    //gamma correction
+    color = glm::pow(color,glm::vec4(1/2.2f));
+
     return color;
 }
 
