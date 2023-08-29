@@ -14,6 +14,12 @@ public:
     float _roughness = 1.0f;
     float _metalic = 0.0f;
     float _refractionIndex = 0.0f;
+    float _emission = 0.0f;
+
+    glm::vec4 EmitLIght()
+    {
+        return _albedo * _emission;
+    }
 };
 
 struct HitPayload {
@@ -23,9 +29,9 @@ struct HitPayload {
 };
 
 
-#define SAMPLES_PER_PIXEL 5   //antialiasing
+#define SAMPLES_PER_PIXEL 50   //supersampling
 #define IMAGE_WIDTH 600          //resolution
 #define REFLECTION_RESOLUTION 5  //reflection depth
-#define GAMMA 0.5f
+#define GAMMA 1/2.2f
 
 

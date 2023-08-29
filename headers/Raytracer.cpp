@@ -32,10 +32,9 @@ HitPayload Raytracer::TraceRay(const Ray& r, const std::vector<std::shared_ptr<M
     return Miss(r);
 }
 
-glm::vec3 Raytracer::PerPixel(float x, float y, const Ray& r, const std::vector<std::shared_ptr<Mesh>>& world, glm::vec3 lightDirection)
+glm::vec3 Raytracer::CalculatePixel(float x, float y, const Ray& r, const std::vector<std::shared_ptr<Mesh>>& world, glm::vec3 lightDirection)
 {
     glm::vec4 color(0.0f);
-    glm::vec4 tcolor(0.0f);
     int reflectionCount = REFLECTION_RESOLUTION;
     glm::vec4 rayColor(1.0f);
 
@@ -44,7 +43,7 @@ glm::vec3 Raytracer::PerPixel(float x, float y, const Ray& r, const std::vector<
     {
         HitPayload payload = TraceRay(ray, world);
 
-        if (payload._depth < 0.0f)
+        if (payload._depth < 0.01f)
         {
             color += payload._material._albedo * rayColor;
             break;
@@ -59,16 +58,20 @@ glm::vec3 Raytracer::PerPixel(float x, float y, const Ray& r, const std::vector<
 
         rayColor *= payload._material._albedo; //light accumulation
 
+        color += payload._material.EmitLIght();
   
-        ray = ray.reflect(payload._normal,ray.atPosition(payload._depth), payload._material);
+        glm::vec3 diffuse = ray.DiffuseReflectDirection(payload._normal,ray.atPosition(payload._depth), payload._material);
+        glm::vec3 specular = glm::reflect(ray.getDirection(), payload._normal);
 
+        ray.UpdateRay(ray.atPosition(payload._depth),
+            glm::mix(specular, diffuse, payload._material._roughness));
     }
 
 
     color = glm::clamp(color, glm::vec4(0.0f), glm::vec4(1.0f));
 
     //gamma correction
-    color = glm::pow(color,glm::vec4(1/2.2f));
+    color = glm::pow(color,glm::vec4(GAMMA));
 
     return color;
 }
@@ -115,10 +118,10 @@ void Raytracer::GenerateRays(const std::vector<std::shared_ptr<Mesh>>& world, Ou
                 Ray ray(origin+ randOffset, 
                     bottomLeftCorner + x * horizontal + y * vertical - origin - randOffset);
 
-                pixelColor += PerPixel(x, y, ray, world, lightDirection)/(float)samplesPerPixel;
+                pixelColor += CalculatePixel(x, y, ray, world, lightDirection);
             }
 
-            file.ColorPixel(i, j, pixelColor);
+            file.ColorPixel(i, j, pixelColor / (float)samplesPerPixel);
         }
         scanlinesDone++;
     });

@@ -25,20 +25,20 @@ namespace ObjImporter {
     {
         using namespace std;
 
-        vector<shared_ptr<Mesh>> world;
         Assimp::Importer importer;
 
         //import i walidacja
-        const aiScene* scene = importer.ReadFile(path, aiProcess_CalcTangentSpace |
+        const aiScene* scene = importer.ReadFile(path,
             aiProcess_Triangulate |
             aiProcess_JoinIdenticalVertices |
             aiProcess_SortByPType);
 
-        if (nullptr == scene) {
+        if (scene == nullptr) {
             throw std::runtime_error("scene file not found");
         }
 
         //konwersja danych
+        vector<shared_ptr<Mesh>> world;
         for (int j = 0; j < scene->mNumMeshes; j++)
         {
             std::shared_ptr<Mesh> resultMesh = std::make_shared<Mesh>();
@@ -47,21 +47,25 @@ namespace ObjImporter {
             //materia³
             auto& material = scene->mMaterials[mesh->mMaterialIndex];
 
-            aiColor4D diffuse;
+            aiColor4D albedo;
             float roughness;
             float metalic;
             float ior;
 
-            if (aiReturn_SUCCESS == aiGetMaterialColor(material, AI_MATKEY_COLOR_DIFFUSE, &diffuse))
-                resultMesh->_material._albedo = glm::vec4(diffuse.r, diffuse.g, diffuse.b, diffuse.a);
+            if (aiGetMaterialColor(material, AI_MATKEY_COLOR_DIFFUSE, &albedo)
+                 == aiReturn_SUCCESS)
+                resultMesh->_material._albedo = glm::vec4(albedo.r, albedo.g, albedo.b, albedo.a);
 
-            if (aiReturn_SUCCESS == aiGetMaterialFloat(material, AI_MATKEY_ROUGHNESS_FACTOR, &roughness))
+            if (aiGetMaterialFloat(material, AI_MATKEY_ROUGHNESS_FACTOR, &roughness)
+                == aiReturn_SUCCESS)
                 resultMesh->_material._roughness = roughness;
 
-            if (aiReturn_SUCCESS == aiGetMaterialFloat(material, AI_MATKEY_METALLIC_FACTOR, &metalic))
+            if (aiGetMaterialFloat(material, AI_MATKEY_METALLIC_FACTOR, &metalic)
+                == aiReturn_SUCCESS)
                 resultMesh->_material._metalic = metalic;
 
-            if (aiReturn_SUCCESS == aiGetMaterialFloat(material, AI_MATKEY_REFRACTI, &ior))
+            if (aiGetMaterialFloat(material, AI_MATKEY_REFRACTI, &ior)
+                == aiReturn_SUCCESS)
                 resultMesh->_material._refractionIndex = ior;
 
 
@@ -70,18 +74,14 @@ namespace ObjImporter {
             Vertex v1, v2, v3;
             for (int i = 0; i < mesh->mNumFaces; i++)
             {
-
                 v1.position = aiVec3ToGLM(vertices[mesh->mFaces[i].mIndices[0]]);
-                
                 v2.position = aiVec3ToGLM(vertices[mesh->mFaces[i].mIndices[1]]);
-                
                 v3.position = aiVec3ToGLM(vertices[mesh->mFaces[i].mIndices[2]]);
 
                 std::shared_ptr<Triangle> t = std::make_shared<Triangle>(v1, v2, v3);
                 resultMesh->_primitives.push_back(t);
             }
             world.push_back(resultMesh);
-
         }
         return world;
     }
