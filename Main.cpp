@@ -5,12 +5,16 @@
 #include "ObjImporter.h"
 #include "Raytracer.h"
 
+#include <chrono>
+
 
 
 using glm::vec3;
 
 int main()
 {
+
+
     //model import
     std::vector<std::shared_ptr<Mesh>> world;
 
@@ -21,6 +25,10 @@ int main()
         std::cout << e.what();
         return -1;
     }
+
+    //timer
+
+    auto startTime = std::chrono::high_resolution_clock::now();
 
     // Image
     const auto aspect_ratio = 16.0 / 9.0;
@@ -38,5 +46,13 @@ int main()
     Raytracer::GenerateRays(world, file, lightDirection);
 
     file.saveFile();
+
+    auto endTime = std::chrono::high_resolution_clock::now();
+
+
+    std::chrono::duration<float> duration = endTime - startTime;
+
+    std::cout << std::endl << "Execution time: " << duration.count() << "s" << std::endl;
+
 	return 0;
 }

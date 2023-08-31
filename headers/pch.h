@@ -29,8 +29,8 @@ struct HitPayload {
 };
 
 
-#define SAMPLES_PER_PIXEL 50   //supersampling
-#define IMAGE_WIDTH 600          //resolution
+#define SAMPLES_PER_PIXEL 100   //supersampling
+#define IMAGE_WIDTH 200          //resolution
 #define REFLECTION_RESOLUTION 5  //reflection depth
 #define GAMMA 1/2.2f
 

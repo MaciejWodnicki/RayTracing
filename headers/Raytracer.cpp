@@ -102,21 +102,21 @@ void Raytracer::GenerateRays(const std::vector<std::shared_ptr<Mesh>>& world, Ou
     for (int j = imageHeight - 1; j >= 0; --j)
         verticalIter[j] = j;
 
-    std::atomic_int scanlinesDone = 0;
+    int scanlinesDone = 0;
 
     std::for_each(std::execution::par, verticalIter.begin(), verticalIter.end(), [&](int j) {
-        std::cerr << "\rScanlines remaining: " << imageHeight - scanlinesDone << ' ' << std::flush;
+        std::cout << "\rScanlines remaining: " << imageHeight - scanlinesDone << ' ' << std::flush;
         for (int i = 0; i < imageWidth; ++i) {
             float x = (float)i / (imageWidth - 1);
             float y = (float)j / (imageHeight - 1);
 
             vec3 pixelColor(0.0f);
-            //antialiasing
+            //supersampling
             for (int s = 0; s < samplesPerPixel; s++) 
             {
                 glm::vec3 randOffset = glm::ballRand(superSamplingSpread);
-                Ray ray(origin+ randOffset, 
-                    bottomLeftCorner + x * horizontal + y * vertical - origin - randOffset);
+                Ray ray(origin, 
+                    bottomLeftCorner + x * horizontal + y * vertical - origin + randOffset);
 
                 pixelColor += CalculatePixel(x, y, ray, world, lightDirection);
             }
