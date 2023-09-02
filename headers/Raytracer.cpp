@@ -32,7 +32,7 @@ HitPayload Raytracer::TraceRay(const Ray& r, const std::vector<std::shared_ptr<M
     return Miss(r);
 }
 
-glm::vec3 Raytracer::CalculatePixel(float x, float y, const Ray& r, const std::vector<std::shared_ptr<Mesh>>& world, glm::vec3 lightDirection)
+glm::vec3 Raytracer::CalculatePixel(const Ray& r, const std::vector<std::shared_ptr<Mesh>>& world, glm::vec3 lightDirection)
 {
     glm::vec4 color(0.0f);
     int reflectionCount = REFLECTION_RESOLUTION;
@@ -118,7 +118,7 @@ void Raytracer::GenerateRays(const std::vector<std::shared_ptr<Mesh>>& world, Ou
                 Ray ray(origin, 
                     bottomLeftCorner + x * horizontal + y * vertical - origin + randOffset);
 
-                pixelColor += CalculatePixel(x, y, ray, world, lightDirection);
+                pixelColor += CalculatePixel(ray, world, lightDirection);
             }
 
             file.ColorPixel(i, j, pixelColor / (float)samplesPerPixel);

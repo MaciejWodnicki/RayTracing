@@ -47,11 +47,9 @@ int main()
 
     file.saveFile();
 
+
     auto endTime = std::chrono::high_resolution_clock::now();
-
-
     std::chrono::duration<float> duration = endTime - startTime;
-
     std::cout << std::endl << "Execution time: " << duration.count() << "s" << std::endl;
 
 	return 0;
