@@ -29,12 +29,10 @@ public:
 			"\nv3: " + std::to_string(_v3.position.x) + ", " + std::to_string(_v3.position.y) + ", " + std::to_string(_v3.position.z);
 	}
 	// Inherited via Hittable
-	virtual HitPayload Hit(const Ray& ray) const override //-1 = back or parrarel, -2 = behind ray origin, -3 = nie jest w trojkacie
+	virtual HitData Hit(const Ray& ray) const override //-1 = ty³ albo równoleg³y, -2 = nie jest w trojkacie
 	{
-		HitPayload payload;
+		HitData payload;
 		using namespace glm;
-
-		//https://www.scratchapixel.com/lessons/3d-basic-rendering/ray-tracing-rendering-a-triangle/moller-trumbore-ray-triangle-intersection.html
 
 		vec3 edge1 = _v2.position - _v1.position;
 		vec3 edge2 = _v3.position - _v1.position;

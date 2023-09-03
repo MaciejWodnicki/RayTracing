@@ -41,8 +41,6 @@ int main()
     // Render
     OutputFile file(image_width, image_height);
 
-    world[4].get()->_material._emission = 5.0f; // ustawienie emisyjnosci dla konkretnego elementu sceny
-
     Raytracer::GenerateRays(world, file, lightDirection);
 
     file.saveFile();

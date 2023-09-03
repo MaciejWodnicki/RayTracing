@@ -4,6 +4,6 @@
 
 class SceneObject {
 public:
-	virtual HitPayload Hit(const Ray& ray) const = 0;
+	virtual HitData Hit(const Ray& ray) const = 0;
 };
 

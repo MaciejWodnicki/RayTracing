@@ -1,12 +1,12 @@
 #include "Raytracer.h"
 #include <execution>
 
-HitPayload Raytracer::TraceRay(const Ray& r, const std::vector<std::shared_ptr<Mesh>>& world)
+HitData Raytracer::TraceRay(const Ray& r, const std::vector<std::shared_ptr<Mesh>>& world)
 {
     using glm::vec3;
 
-    HitPayload closestPayload;
-    HitPayload payload;
+    HitData closestPayload;
+    HitData payload;
 
     for (auto& m : world)
     {
@@ -41,7 +41,7 @@ glm::vec3 Raytracer::CalculatePixel(const Ray& r, const std::vector<std::shared_
     Ray ray = r;
     for (int i = 0; i < reflectionCount; i++)
     {
-        HitPayload payload = TraceRay(ray, world);
+        HitData payload = TraceRay(ray, world);
 
         if (payload._depth < 0.01f)
         {
@@ -58,8 +58,6 @@ glm::vec3 Raytracer::CalculatePixel(const Ray& r, const std::vector<std::shared_
 
         rayColor *= payload._material._albedo; //light accumulation
 
-        color += payload._material.EmitLIght();
-  
         glm::vec3 diffuse = ray.DiffuseReflectDirection(payload._normal,ray.atPosition(payload._depth), payload._material);
         glm::vec3 specular = glm::reflect(ray.getDirection(), payload._normal);
 
@@ -131,9 +129,9 @@ bool Raytracer::IsDirectlyIlluminated(const Ray& r, const std::vector<std::share
 {
     using glm::vec3;
 
-    HitPayload payload;
+    HitData payload;
 
-    if (glm::dot(surfaceNormal, -lightDirection) <= 0.0f)
+    if (glm::dot(surfaceNormal, -lightDirection) <= 0.001f)
         return false;
 
     for (auto& m : world)
@@ -151,9 +149,9 @@ bool Raytracer::IsDirectlyIlluminated(const Ray& r, const std::vector<std::share
     return true;
 }
 
-HitPayload Raytracer::Miss(const Ray& r)
+HitData Raytracer::Miss(const Ray& r)
 {
-    HitPayload payload;
+    HitData payload;
     //sky color gradient
     glm::vec3 unit_direction = r.getDirection() / glm::length(r.getDirection());
     float t = 0.5 * (unit_direction.y + 1.0);
