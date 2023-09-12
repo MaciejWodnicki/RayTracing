@@ -8,8 +8,6 @@ add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 
 include_directories(${PROJECT_NAME} PUBLIC "headers")
 
-include(C:/portable/vcpkg/vcpkg/scripts/buildsystems/vcpkg.cmake)
-
 find_package(glm CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE glm::glm)
 
