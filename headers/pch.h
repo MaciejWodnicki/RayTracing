@@ -23,7 +23,7 @@ struct HitData {
 };
 
 
-#define SAMPLES_PER_PIXEL 5   //supersampling
+#define SAMPLES_PER_PIXEL 5  //supersampling
 #define IMAGE_WIDTH 600        //resolution
 #define REFLECTION_RESOLUTION 5  //reflection depth
 #define GAMMA 1/2.2f

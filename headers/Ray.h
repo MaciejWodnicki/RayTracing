@@ -20,15 +20,13 @@ public:
 		return _origin + t * _direction;
 	}
 
-	glm::vec3 DiffuseReflectDirection(glm::vec3 normal, glm::vec3 hitPoint, Material material)
+	glm::vec3 DiffuseReflectDirection(glm::vec3 normal)
 	{
 		
 		glm::vec3 randomDirection = glm::sphericalRand(1.0f);
 
 		if (glm::dot(randomDirection, normal) < 0.001f)
 			randomDirection = -randomDirection;
-
-		randomDirection = glm::normalize(normal + randomDirection);
 
 		return randomDirection;
 	}

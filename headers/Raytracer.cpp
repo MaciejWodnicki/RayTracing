@@ -21,13 +21,10 @@ HitData Raytracer::TraceRay(const Ray& r, const std::vector<std::shared_ptr<Mesh
         }
     }
 
-    //closest hit shader
     if (closestPayload._depth > 0 && closestPayload._depth < std::numeric_limits<float>::max())
     {
         return closestPayload;
     }
-
-    //miss shader
 
     return Miss(r);
 }
@@ -58,7 +55,7 @@ glm::vec3 Raytracer::CalculatePixel(const Ray& r, const std::vector<std::shared_
 
         rayColor *= payload._material._albedo; //light accumulation
 
-        glm::vec3 diffuse = ray.DiffuseReflectDirection(payload._normal,ray.atPosition(payload._depth), payload._material);
+        glm::vec3 diffuse = ray.DiffuseReflectDirection(payload._normal);
         glm::vec3 specular = glm::reflect(ray.getDirection(), payload._normal);
 
         ray.UpdateRay(ray.atPosition(payload._depth),
@@ -88,9 +85,9 @@ void Raytracer::GenerateRays(const std::vector<std::shared_ptr<Mesh>>& world, Ou
     // Camera 
     float viewportHeight = 2.0;
     float viewportWidth = imageWidth / (float)imageHeight * viewportHeight;
-    float focalLength = 2.0;
+    float focalLength = 3.0;
 
-    vec3 origin = vec3(0, 0, 5.0f);
+    vec3 origin = vec3(0, 0, 8.0f);
     vec3 horizontal = vec3(viewportWidth, 0, 0);
     vec3 vertical = vec3(0, viewportHeight, 0);
     vec3 bottomLeftCorner = origin - horizontal / 2.0f - vertical / 2.0f - vec3(0, 0, focalLength);
@@ -139,7 +136,7 @@ bool Raytracer::IsDirectlyIlluminated(const Ray& r, const std::vector<std::share
         for (auto& t : m->_primitives)
         {
             payload = t->Hit(r);
-            if (payload._depth > -0.1f)
+            if (payload._depth > -0)
             {
                 return false;
             }
