@@ -97,10 +97,9 @@ void Raytracer::GenerateRays(const std::vector<std::shared_ptr<Mesh>>& world, Ou
     for (int j = imageHeight - 1; j >= 0; --j)
         verticalIter[j] = j;
 
-    int scanlinesDone = 0;
 
     std::for_each(std::execution::par, verticalIter.begin(), verticalIter.end(), [&](int j) {
-        std::cout << "\rScanlines remaining: " << imageHeight - scanlinesDone << ' ' << std::flush;
+        std::cout << "\rScanlines remaining: " << imageHeight - j << ' ' << std::flush;
         for (int i = 0; i < imageWidth; ++i) {
             float x = (float)i / (imageWidth - 1);
             float y = (float)j / (imageHeight - 1);
@@ -118,7 +117,6 @@ void Raytracer::GenerateRays(const std::vector<std::shared_ptr<Mesh>>& world, Ou
 
             file.ColorPixel(i, j, pixelColor / (float)samplesPerPixel);
         }
-        scanlinesDone++;
     });
 }
 
