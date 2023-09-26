@@ -53,8 +53,14 @@ namespace ObjImporter {
             float ior;
 
             if (aiGetMaterialColor(material, AI_MATKEY_COLOR_DIFFUSE, &albedo)
-                 == aiReturn_SUCCESS)
-                resultMesh->_material._albedo = glm::vec4(albedo.r, albedo.g, albedo.b, albedo.a);
+                == aiReturn_SUCCESS)
+            {
+                resultMesh->_material._albedo = glm::vec4(
+                    glm::max(albedo.r, 0.01f),
+                    glm::max(albedo.g, 0.01f),
+                    glm::max(albedo.b, 0.01f),
+                    glm::max(albedo.a, 0.01f));
+            }
 
             if (aiGetMaterialFloat(material, AI_MATKEY_ROUGHNESS_FACTOR, &roughness)
                 == aiReturn_SUCCESS)
