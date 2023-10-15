@@ -1,7 +1,7 @@
 # RayTracing
 Projekt wykorzystujący RayTracing do renderowania scen wykonany w ramach pracy licencjackiej
 
-#Jak używać
+# Jak używać
 Projekt do działania wymaga dwóch bibliotek: glm, ASSIMP.
 Zalecane jest skorzystanie z vcpkg, jakoże plik cMake połączy je z projektem w momencie budowania.
 
