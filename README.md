@@ -12,4 +12,4 @@ In case the scene files are not recognized you may need to manually remove "anis
 
 Image resolution, number of samples per pixel, depth of reflections as well as Gamma value can be adjusted in pch.h file.
 
-![image](https://github.com/MaciejWodnicki/RayTracing/assets/101054402/1ac8d11b-0a54-4c56-a948-dc6eae232792)
+![render;800x450px; 100 samples ](https://github.com/MaciejWodnicki/RayTracing/assets/101054402/0a43cd07-05d8-4f05-a75c-48ef800e9944)
