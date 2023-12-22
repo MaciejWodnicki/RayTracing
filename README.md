@@ -1,5 +1,5 @@
 # RayTracing
-C++ project which renders an image utilizing the raytracing method, created as a part of graduation thesis.
+C++ project which renders an image utilizing the raytracing method.
 
 # How to
 The project uses two libraries: glm and ASSIMP.
